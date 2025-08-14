@@ -1,9 +1,11 @@
 import React from "react";
-import PropertyList from "./components/Properties";
+import PropertyList from "./pages/Properties";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute"; // import it
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Favourites from "./pages/Favourites";
+import PropertyDetailsPage from "./pages/PropertyDetailsPage";
 
 function App() {
   return (
@@ -18,6 +20,22 @@ function App() {
           element={
             <ProtectedRoute>
               <PropertyList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/favourites"
+          element={
+            <ProtectedRoute>
+              <Favourites />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/property/:id"
+          element={
+            <ProtectedRoute>
+              <PropertyDetailsPage />
             </ProtectedRoute>
           }
         />

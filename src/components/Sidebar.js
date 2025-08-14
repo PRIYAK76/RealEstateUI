@@ -4,11 +4,11 @@ import {
   FaHome,
   FaBuilding,
   FaUser,
-  FaCog,
   FaSignOutAlt,
+  FaHeart,
 } from "react-icons/fa";
 import logo from "../assets/logo.jpg";
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -38,12 +38,14 @@ const Sidebar = () => {
       <div className="flex-grow-1">
         <ul className="nav flex-column px-3">
           <li className="nav-item mb-3">
+            <NavLink to="/property-list">
             <a
               href="#"
               className="nav-link text-dark d-flex align-items-center gap-2"
             >
               <FaHome /> Dashboard
             </a>
+            </NavLink>
           </li>
           <li className="nav-item mb-3">
             <a
@@ -54,20 +56,24 @@ const Sidebar = () => {
             </a>
           </li>
           <li className="nav-item mb-3">
+            <NavLink to="/user-profile">
             <a
               href="#"
               className="nav-link text-dark d-flex align-items-center gap-2"
             >
               <FaUser /> Profile
             </a>
+            </NavLink>
           </li>
           <li className="nav-item mb-3">
+            <NavLink to="/favourites">
             <a
               href="#"
               className="nav-link text-dark d-flex align-items-center gap-2"
             >
-              <FaCog /> Settings
+              <FaHeart /> Favourites
             </a>
+            </NavLink>
           </li>
         </ul>
       </div>

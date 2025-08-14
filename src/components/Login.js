@@ -23,6 +23,7 @@ const Login = () => {
 
       if (response.message === 'Logged in successfully') {
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userID', response.user.userID);
         navigate('/property-list');
       } else {
         setMessage(response.message || 'Invalid username or password');
