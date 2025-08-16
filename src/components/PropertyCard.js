@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { FaDollarSign, FaMapMarkerAlt, FaTag, FaHeart, FaTrash } from "react-icons/fa";
-import { postRequest, getRequest } from "../api/apiService";
+import {
+  FaDollarSign,
+  FaMapMarkerAlt,
+  FaTag,
+  FaHeart,
+  FaMinusCircle,
+} from "react-icons/fa";
+import { postRequest, getRequest, deleteRequest } from "../api/apiService";
 
 const PropertyCard = ({ property, onViewDetails, onRemove }) => {
   const [isFavourite, setIsFavourite] = useState(false);
@@ -13,19 +19,21 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
 
   useEffect(() => {
     const checkIfFavourite = async () => {
-      if (!userId) return;
+      if (!userId || isOnFavouritesPage) return;
 
       try {
-        const favourites = await getRequest(`/Properties/getFavouriteProperties/${userId}`);
-        const isFav = favourites.some(fav => fav.propertyId === property.id);
+        const favourites = await getRequest(
+          `/Properties/getFavouriteProperties/${userId}`
+        );
+        const isFav = favourites.some((fav) => fav.propertyId === property.id);
         setIsFavourite(isFav);
       } catch (error) {
         console.error("Failed to fetch favourites", error);
       }
     };
-
+    console.log('fav',property);
     checkIfFavourite();
-  }, [property.id, userId]);
+  }, [property.id, userId, isOnFavouritesPage]);
 
   const handleAddToFavourites = async () => {
     if (!userId) {
@@ -33,10 +41,7 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
       return;
     }
 
-    const body = {
-      userId: userId,
-      propertyId: property.id,
-    };
+    const body = { userId, propertyId: property.id };
 
     try {
       setLoading(true);
@@ -50,21 +55,20 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
     }
   };
 
-  const handleRemoveFromFavourites = async () => {
+  const handleRemoveFromFavourites = async (favouriteID) => {
     if (!userId) {
       alert("User not logged in.");
       return;
     }
 
-    const body = {
-      userId: userId,
-      propertyId: property.id,
-    };
-
     try {
       setLoading(true);
-      await postRequest("/Properties/removeFavouriteProperty", body); // Update as per your API
-      onRemove && onRemove(property.id);
+
+      await deleteRequest(
+        `/Properties/removeFavouriteProperty?userID=${userId}&favouriteID=${favouriteID}`
+      );
+
+      onRemove && onRemove(property.favouriteId);
     } catch (error) {
       console.error("Failed to remove from favourites", error);
       alert("Failed to remove from favourites.");
@@ -75,13 +79,29 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
 
   return (
     <div
-      className="card h-100 shadow"
+      className="card h-100 position-relative"
       style={{
         borderRadius: "15px",
         backgroundColor: "#f7f7f7ff",
         boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
       }}
     >
+      {isOnFavouritesPage && (
+        <FaMinusCircle
+          size={20}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            color: "#dc3545",
+            cursor: "pointer",
+            zIndex: 2,
+          }}
+          title="Remove from favourites"
+          onClick={() =>handleRemoveFromFavourites(property.favouriteId)}
+        />
+      )}
+
       <img
         src={property.propertyImage}
         className="card-img-top"
@@ -93,6 +113,7 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
           borderTopRightRadius: "15px",
         }}
       />
+
       <div className="card-body">
         <h5 className="card-title" style={{ color: "#5a4d9d" }}>
           {property.title}
@@ -112,6 +133,7 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
           </li>
         </ul>
       </div>
+
       <div className="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
         <button
           className="btn btn-sm"
@@ -126,21 +148,7 @@ const PropertyCard = ({ property, onViewDetails, onRemove }) => {
           View Details
         </button>
 
-        {isOnFavouritesPage ? (
-          <button
-            className="btn btn-sm"
-            style={{
-              backgroundColor: "#dc3545",
-              color: "#fff",
-              borderRadius: "8px",
-            }}
-            onClick={handleRemoveFromFavourites}
-            disabled={loading}
-          >
-            <FaTrash className="me-1" />
-            Remove
-          </button>
-        ) : (
+        {!isOnFavouritesPage && (
           <button
             className="btn btn-sm"
             style={{

@@ -50,40 +50,45 @@ const PropertyDetailsPage = () => {
           ← Back to Listings
         </Link>
         <h2>{property.title}</h2>
-        <img
-          src={property.propertyImage}
-          alt={property.title}
-          style={{
-            width: "50%",
-            maxHeight: "400px",
-            objectFit: "cover",
-            borderRadius: "10px",
-          }}
-        />
-        <p>
-          <strong>Location:</strong> {property.city}, {property.state}
-        </p>
-        <p>
-          <strong>Price:</strong>{" "}
-          {property.price ? `$${property.price.toLocaleString()}` : "N/A"}
-        </p>
-        <p>
-          <strong>Size:</strong> {property.size} sq ft
-        </p>
-        <p>
-          <strong>Rooms:</strong> {property.rooms}
-        </p>
-        <p>
-          <strong>Bathrooms:</strong> {property.bathrooms}
-        </p>
-        <p>
-          <strong>Status:</strong> {property.status}
-        </p>
-        <p>
-          <strong>Description:</strong>{" "}
-          {property.description || "No description available."}
-        </p>
-        {/* Add more details as needed */}
+        <div className="d-flex">
+          <div className="w-50 me-3">
+            <img
+              src={property.propertyImage}
+              alt={property.title}
+              style={{
+                width: "100%",
+                maxHeight: "400px",
+                objectFit: "cover",
+                borderRadius: "10px",
+              }}
+            />
+          </div>
+          <div>
+            <p>
+              <strong>Location:</strong> {property.city}, {property.state}
+            </p>
+            <p>
+              <strong>Price:</strong>{" "}
+              {property.price ? `$${property.price.toLocaleString()}` : "N/A"}
+            </p>
+            <p>
+              <strong>Size:</strong> {property.size} sq ft
+            </p>
+            <p>
+              <strong>Rooms:</strong> {property.rooms}
+            </p>
+            <p>
+              <strong>Bathrooms:</strong> {property.bathrooms}
+            </p>
+            <p>
+              <strong>Status:</strong> {property.status}
+            </p>
+            <p>
+              <strong>Description:</strong>{" "}
+              {property.description || "No description available."}
+            </p>
+          </div>
+        </div>
       </div>
     </Layout>
   );
