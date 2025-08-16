@@ -1,14 +1,78 @@
-import React from "react";
-import {
-  FaDollarSign,
-  FaRulerCombined,
-  FaBed,
-  FaBath,
-  FaMapMarkerAlt,
-  FaTag,
-} from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { FaDollarSign, FaMapMarkerAlt, FaTag, FaHeart, FaTrash } from "react-icons/fa";
+import { postRequest, getRequest } from "../api/apiService";
 
-const PropertyCard = ({ property, onViewDetails }) => {
+const PropertyCard = ({ property, onViewDetails, onRemove }) => {
+  const [isFavourite, setIsFavourite] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const isOnFavouritesPage = location.pathname === "/favourites";
+
+  const userId = parseInt(localStorage.getItem("userID"));
+
+  useEffect(() => {
+    const checkIfFavourite = async () => {
+      if (!userId) return;
+
+      try {
+        const favourites = await getRequest(`/Properties/getFavouriteProperties/${userId}`);
+        const isFav = favourites.some(fav => fav.propertyId === property.id);
+        setIsFavourite(isFav);
+      } catch (error) {
+        console.error("Failed to fetch favourites", error);
+      }
+    };
+
+    checkIfFavourite();
+  }, [property.id, userId]);
+
+  const handleAddToFavourites = async () => {
+    if (!userId) {
+      alert("User not logged in.");
+      return;
+    }
+
+    const body = {
+      userId: userId,
+      propertyId: property.id,
+    };
+
+    try {
+      setLoading(true);
+      await postRequest("/Properties/addFavouriteProperty", body);
+      setIsFavourite(true);
+    } catch (error) {
+      console.error("Failed to add to favourites", error);
+      alert("Failed to add to favourites.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveFromFavourites = async () => {
+    if (!userId) {
+      alert("User not logged in.");
+      return;
+    }
+
+    const body = {
+      userId: userId,
+      propertyId: property.id,
+    };
+
+    try {
+      setLoading(true);
+      await postRequest("/Properties/removeFavouriteProperty", body); // Update as per your API
+      onRemove && onRemove(property.id);
+    } catch (error) {
+      console.error("Failed to remove from favourites", error);
+      alert("Failed to remove from favourites.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className="card h-100 shadow"
@@ -40,27 +104,15 @@ const PropertyCard = ({ property, onViewDetails }) => {
         <ul className="list-unstyled small">
           <li>
             <FaDollarSign className="me-2" />
-            <strong>Price:</strong> ${property.price.toLocaleString()}
+            <strong>Price:</strong> ${property.price?.toLocaleString() || "N/A"}
           </li>
-          {/* <li>
-            <FaRulerCombined className="me-2" />
-            <strong>Size:</strong> {property.size} sq ft
-          </li>
-          <li>
-            <FaBed className="me-2" />
-            <strong>Rooms:</strong> {property.rooms}
-          </li>
-          <li>
-            <FaBath className="me-2" />
-            <strong>Bathrooms:</strong> {property.bathrooms}
-          </li> */}
           <li>
             <FaTag className="me-2" />
             <strong>Status:</strong> {property.status}
           </li>
         </ul>
       </div>
-      <div className="card-footer bg-transparent border-0 text-end">
+      <div className="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
         <button
           className="btn btn-sm"
           style={{
@@ -73,6 +125,36 @@ const PropertyCard = ({ property, onViewDetails }) => {
         >
           View Details
         </button>
+
+        {isOnFavouritesPage ? (
+          <button
+            className="btn btn-sm"
+            style={{
+              backgroundColor: "#dc3545",
+              color: "#fff",
+              borderRadius: "8px",
+            }}
+            onClick={handleRemoveFromFavourites}
+            disabled={loading}
+          >
+            <FaTrash className="me-1" />
+            Remove
+          </button>
+        ) : (
+          <button
+            className="btn btn-sm"
+            style={{
+              backgroundColor: isFavourite ? "gray" : "#e74c3c",
+              color: "#fff",
+              borderRadius: "8px",
+            }}
+            onClick={handleAddToFavourites}
+            disabled={isFavourite || loading}
+          >
+            <FaHeart className="me-1" />
+            {isFavourite ? "Added" : "Add to Favourites"}
+          </button>
+        )}
       </div>
     </div>
   );
